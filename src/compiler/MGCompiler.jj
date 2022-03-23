@@ -1,0 +1,122 @@
+//MGCompiler
+
+PARSER_BEGIN(MGCompiler)
+
+class MGCompiler {
+    public static void main(String[] args) throws ParseException {
+        try {
+            MGCompiler parser = new MGCompiler(System.in); 
+            MGCompiler.Programa();
+        }
+        catch (ParseException e) {
+            System.out.println("Se encontraron errores en el analisis: "+e.getMessage());
+        }
+    }
+
+}
+
+PARSER_END(MGCompiler)
+
+SKIP :{
+   " "
+ | "\r"
+ | "\n"
+ | "\t"
+}
+
+//Palabras reservadas
+TOKEN: {
+    <PROGRAM: "program"> {System.out.println("PROGRAM ->" +image);} 
+
+    |<IF: "if">{System.out.println("IF ->" +image);} 
+    |<ELSE: "else"> {System.out.println("ELSE ->" +image);} 
+    |<FI: "fi">{System.out.println("FI ->" +image);} 
+    |<DO: "do"> {System.out.println("DO ->" +image);} 
+    |<UNTIL: "until">{System.out.println("UNTIL ->" +image);} 
+    |<WHILE: "while"> {System.out.println("WHILE ->" +image);} 
+    |<READ: "read"> {System.out.println("READ ->" +image);} 
+    |<WRITE: "write"> {System.out.println("WRITE ->" +image);} 
+
+    |<FLOAT: "float"> {System.out.println("FLOAT ->" +image);} 
+    |<INT: "int"> {System.out.println("INT ->" +image);} 
+    |<BOOL: "bool"> {System.out.println("BOOL ->" +image);} 
+
+    |<NOT: "not"> {System.out.println("NOT ->" +image);} 
+    |<AND: "and"> {System.out.println("AND ->" +image);} 
+    |<OR: "or"> {System.out.println("OR ->" +image);} 
+}
+
+//Símbolos
+TOKEN: {
+    <SUMA: "+"> {System.out.println("OP. SUMA ->" +image);} 
+    |<RESTA: "-"> {System.out.println("OP. RESTA ->" +image);} 
+    |<MULT: "*"> {System.out.println("OP. MULTIPLICACION ->" +image);} 
+    |<DIV: "/"> {System.out.println("OP. DIVISION ->" +image);} 
+    |<EXP: "^"> {System.out.println("EXPONENTE ->" +image);} 
+    |<MENQ: "<"> {System.out.println("MEONR QUE ->" +image);} 
+    |<MAYQ: ">"> {System.out.println("MAYOR QUE ->" +image);} 
+    |<MENOIGQ: "<="> {System.out.println("MEN. O IGUAL QUE ->" +image);} 
+    |<MAYOIGQ: ">="> {System.out.println("MAY. O IGUAL QUE ->" +image);} 
+    |<COMPARACION: "=="> {System.out.println("COMPARACION ->" +image);} 
+    |<ASIGNACION: "=">  {System.out.println("ASIGNACION ->" +image);} 
+    |<DIFERENCIA: "!="> {System.out.println("DIFERENCIA ->" +image);} 
+    |<PUNYCOM: ";"> {System.out.println("PUNTO Y COMA ->" +image);} 
+    |<COMA: ",">  {System.out.println("COMA ->" +image);} 
+    |<PAROPEN: "("> {System.out.println("ABRE PARENTESIS ->" +image);} 
+    |<PARCLOSE: ")"> {System.out.println("CIERRA PARENTESIS ->" +image);} 
+    |<BRACOPEN: "{"> {System.out.println("ABRE LLAVE ->" +image);} 
+    |<BRACCLOSE: "}">  {System.out.println("CIERRA LLAVE ->" +image);} 
+}
+
+//Tokens dinámicos
+TOKEN: {
+    <#letra: ["a"-"z","A"-"Z"]>
+    |<#digito:["0"-"9"]>
+    
+    |<IDENTIFICADOR: (<letra>)(<letra>|<digito>)*> {System.out.println("IDENTIFICADOR ->" +image);} 
+    |<NUMERO: (<digito>)+"."(<digito>)+> {System.out.println("NUMERO ->" +image);} 
+}
+
+
+//Metodos
+
+void Programa() : {}  {
+    <PROGRAM><IDENTIFICADOR><BRACOPEN>Principal()<BRACCLOSE><EOF>
+}
+
+void Principal() : {} {
+    Sentencias()
+}
+
+void Sentencias() : {}  {
+    (
+        LOOKAHEAD(2)
+        DeclaracionLocal()
+        | SentenciaIf()
+    )*
+}
+
+void DeclaracionLocal() : {}  {
+    LOOKAHEAD(2) <INT><IDENTIFICADOR><PUNYCOM> VS() | <FLOAT><IDENTIFICADOR><PUNYCOM> VS() | <BOOL> <IDENTIFICADOR><PUNYCOM> VS()
+}
+
+void VS() : {}  {
+    LOOKAHEAD(2)
+    DeclaracionLocal() | Sentencias()
+}
+
+void SentenciaIf() : {}  {
+    <IF> <PAROPEN> Comparaciones() <PARCLOSE><BRACOPEN><BRACCLOSE> <FI>
+}
+
+void Comparaciones() : {}  {
+    Valor()Operadores()Valor()
+}
+
+void Valor() : {}  {
+    <IDENTIFICADOR> | <NUMERO>
+}
+
+void Operadores() : {}  {
+    <COMPARACION> | <MAYOIGQ> | <MENOIGQ> | <MAYQ> | <MENQ>
+}

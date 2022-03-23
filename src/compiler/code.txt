@@ -1,0 +1,10 @@
+program prueba{
+    int var1;
+    float var2;
+    bool var3;
+
+    if (var1 == 4.9){
+
+    }
+    fi
+}
