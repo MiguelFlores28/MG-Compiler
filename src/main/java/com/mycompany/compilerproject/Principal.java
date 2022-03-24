@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.Scanner;
 import java.util.logging.Level;
@@ -22,6 +23,7 @@ import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.UIManager;
 import javax.swing.text.*;
+import java.io.FileWriter;
 
 /**
  *
@@ -415,10 +417,39 @@ public class Principal extends javax.swing.JFrame {
     }//GEN-LAST:event_a_Abrir_BDOActionPerformed
 
     private void c_Compilar_BDOActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_c_Compilar_BDOActionPerformed
-        String path = "../compiler/MGCompiler.jj";
-        System.out.println("Working Directory = " + System.getProperty("user.dir"));
+        String compath = "./src/compiler ";
+        String compfile= "MGCompiler ";
+        String filepath = "./src/compiler/code.txt";
+        String[] commando = {"java", "-cp",  "C:/javac/javacc-7.0.10/bootstrap/javacc.jar", "javacc", "-OUTPUT_DIRECTORY=./src/compiler" , "./src/compiler/MGCompiler.jj"};
+        String[] commando2 = {"javac", "./src/compiler/*.java", "-d", "./src/compiler" };
+        
         try {
-            Runtime.getRuntime().exec("javacc");
+            
+            Process proc = Runtime.getRuntime().exec(commando);
+            Process proc2 = Runtime.getRuntime().exec(commando2);
+            
+            Process proc3 = new ProcessBuilder("java", "-cp", "./src/compiler", "MGCompiler").redirectInput(new File("./src/compiler/code.txt")).start();
+            BufferedReader stdInput = new BufferedReader(new InputStreamReader(proc3.getInputStream()));
+
+            BufferedReader stdError = new BufferedReader(new InputStreamReader(proc3.getErrorStream()));
+            
+            FileWriter myWriter= new FileWriter("C:/temp/Output.txt");
+            
+            
+            // Read the output from the command
+            System.out.println("Here is the standard output of the command:\n");
+            String s = null;
+            while ((s = stdInput.readLine()) != null) {
+                myWriter.write(s+"\n");
+            }
+            myWriter.close();
+            
+
+            // Read any errors from the attempted command
+            System.out.println("Here is the standard error of the command (if any):\n");
+            while ((s = stdError.readLine()) != null) {
+                System.out.println(s);
+            }
             
         } catch (IOException ex) {
             Logger.getLogger(Principal.class.getName()).log(Level.SEVERE, null, ex);
