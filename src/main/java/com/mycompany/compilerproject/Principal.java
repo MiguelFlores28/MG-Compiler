@@ -1,8 +1,4 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package com.mycompany.compilerproject;
 
 import java.awt.Color;
@@ -373,6 +369,7 @@ public class Principal extends javax.swing.JFrame {
         System.exit(0);
     }//GEN-LAST:event_a_Salir_BDOActionPerformed
 
+    //Código para guardar archivos
     private void a_GuardarComo_BDOActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_a_GuardarComo_BDOActionPerformed
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setCurrentDirectory(new File("."));
@@ -395,8 +392,8 @@ public class Principal extends javax.swing.JFrame {
 
         }
     }//GEN-LAST:event_a_GuardarComo_BDOActionPerformed
+
 //Código para abrir archivos, editar
-   
     private void a_Abrir_BDOActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_a_Abrir_BDOActionPerformed
         JFileChooser fc = new JFileChooser();
         fc.showOpenDialog(null);
@@ -416,37 +413,54 @@ public class Principal extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_a_Abrir_BDOActionPerformed
 
+/*Código para el compilador JAVACC, este recompila los archivos cada que se solicita la compilación
+    Busca a JAVACC desde su ruta absoluta para ser ejecutado por java y este a su vez compile el archivo correspondiente al compilador (MGCompiler.jj)
+    JAVAC compila todos los archivos con extensión *.java
+    Se ejecuta el código compilado referente al compilador*/
+    
     private void c_Compilar_BDOActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_c_Compilar_BDOActionPerformed
-        String compath = "./src/compiler ";
-        String compfile= "MGCompiler ";
-        String filepath = "./src/compiler/code.txt";
-        String[] commando = {"java", "-cp",  "C:/javac/javacc-7.0.10/bootstrap/javacc.jar", "javacc", "-OUTPUT_DIRECTORY=./src/compiler" , "./src/compiler/MGCompiler.jj"};
-        String[] commando2 = {"javac", "./src/compiler/*.java", "-d", "./src/compiler" };
+        
+        //Comando para compilar MGCompiler.jj
+        String[] commando = 
+        {"java",
+         "-cp",
+         "C:/javac/javacc-7.0.10/bootstrap/javacc.jar", 
+         "javacc", "-OUTPUT_DIRECTORY=./src/compiler" , 
+         "./src/compiler/MGCompiler.jj"
+        };
+        
+        //Comando para compilar los archivos con extensión .java
+        String[] commando2 = 
+        {"javac",
+         "./src/compiler/*.java",
+         "-d", "./src/compiler"
+        };
         
         try {
             
             Process proc = Runtime.getRuntime().exec(commando);
             Process proc2 = Runtime.getRuntime().exec(commando2);
+            Process proc3 = new ProcessBuilder("java", "-cp", "./src/compiler", "MGCompiler")
+                    .redirectInput(new File("./src/compiler/code.txt")).start();
             
-            Process proc3 = new ProcessBuilder("java", "-cp", "./src/compiler", "MGCompiler").redirectInput(new File("./src/compiler/code.txt")).start();
+            //Para la lectura de las salidas de la terminal
             BufferedReader stdInput = new BufferedReader(new InputStreamReader(proc3.getInputStream()));
-
             BufferedReader stdError = new BufferedReader(new InputStreamReader(proc3.getErrorStream()));
             
-            FileWriter myWriter= new FileWriter("C:/temp/Output.txt");
+            //Para escribir la salida del analizador léxico en un archivo txt
+            FileWriter myWriter= new FileWriter("./src/compiler/Output.txt");
+           
+            //Lectura de la salida de cmd
+            System.out.println("Salida de la linea de comandos:\n");
             
-            
-            // Read the output from the command
-            System.out.println("Here is the standard output of the command:\n");
             String s = null;
             while ((s = stdInput.readLine()) != null) {
                 myWriter.write(s+"\n");
             }
             myWriter.close();
             
-
-            // Read any errors from the attempted command
-            System.out.println("Here is the standard error of the command (if any):\n");
+            // Lectura de errores de la salida de cmd
+            System.out.println("Salida de errores de la linea de comandos (Si existe alguno):\n");
             while ((s = stdError.readLine()) != null) {
                 System.out.println(s);
             }
