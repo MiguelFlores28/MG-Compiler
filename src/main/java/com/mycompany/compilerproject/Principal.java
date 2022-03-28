@@ -438,10 +438,11 @@ public class Principal extends javax.swing.JFrame {
         
         try {
             
-            Process proc = Runtime.getRuntime().exec(commando);
-            Process proc2 = Runtime.getRuntime().exec(commando2);
-            Process proc3 = new ProcessBuilder("java", "-cp", "./src/compiler", "MGCompiler")
-                    .redirectInput(new File("./src/compiler/code.txt")).start();
+            Process proc = new ProcessBuilder("java", "-cp", "C:/javac/javacc-7.0.10/bootstrap/javacc.jar", 
+            "javacc", "-OUTPUT_DIRECTORY=./src/compiler", "./src/compiler/MGCompiler.jj").start();
+            Process proc2 = new ProcessBuilder("javac", "-sourcepath", "./src/compiler/*.java", "-d", "./src/compiler").start();
+            Process procx = new ProcessBuilder("javac", "-sourcepath", "./src/compiler/MGCompiler.java", "-d", "./src/compiler").start();
+            Process proc3 = new ProcessBuilder("java", "-cp", "./src/compiler", "MGCompiler").redirectInput(new File("./src/compiler/code.txt")).start();
             
             //Para la lectura de las salidas de la terminal
             BufferedReader stdInput = new BufferedReader(new InputStreamReader(proc3.getInputStream()));
@@ -455,6 +456,7 @@ public class Principal extends javax.swing.JFrame {
             
             String s = null;
             while ((s = stdInput.readLine()) != null) {
+                //Se escribe la salida del analizador léxico en un txt
                 myWriter.write(s+"\n");
             }
             myWriter.close();
